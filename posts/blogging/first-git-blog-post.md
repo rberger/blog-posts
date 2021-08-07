@@ -1,15 +1,15 @@
 ---
 
-title: Testing Documents for Git
+title: Testing Git it Write
 menu_order: 1
 post_status: draft
 post_excerpt: This is a post excerpt
 
 ---
 
-## HowTo use _Documents for Git_
+## HowTo use _Git it Write_
 
-This is a test o [Documents for Git](https://github.com/gis-ops/wordpress-markdown-git)
+This is a test of [Git it Write](https://wordpress.org/plugins/git-it-write/)
 
 Some more stuff
 
