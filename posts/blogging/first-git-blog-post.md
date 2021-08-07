@@ -72,7 +72,7 @@ The setup of the plugin is pretty easy:
 
 Just click on the `+ Add a new repository to publish posts from` and fill in the info about your repo:
 
-![Repo settings](git-t-write-repo-settings.png "Git it Write Repo Settings")
+![Repo settings](/_images/git-t-write-repo-settings.png "Git it Write Repo Settings")
 
 You can set a subdirectory in the repo if you want to carve up things like Posts, Pages, etc in the same repo.
 
