@@ -26,11 +26,11 @@ Unfortunately its not as easy as just having your login and password. It also de
 
 You can have multiple Client Apps specified for your Cognito User Pool. I suggest  having one dedicated to these external applications. That way you can have custom configuration just for this and not disrupt your main  Amplify apps. Also you can easily turn it off if you need too.
 
-![User Pool Client Apps](/_images/User-pool-app-clients.png "User Pool Client Apps")
+![User Pool Client Apps](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/74z6pgmf1qdyqv9wkllr.png  "User Pool Client Apps")
 
 In my case I created a new client app `shoppabdbe800b-rob-test2` as a way to test a client app with no `App Client Secret`. This makes it easier to access from the command line as you do not have to generate a Secret Hash (will describe how to deal with that below).
 
-![App Client Config with no secret](/_images/app-client-config-no-secret.png "App Client Config with no secret")
+![App Client Config with no secret](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hipjcnn0e3q4ronqvgi0.png "App Client Config with no secret")
 
 If you want to allow admin level access (ie a user with admin permission) you need to check `Enable username password auth for admin APIs for authentication (ALLOW_ADMIN_USER_PASSWORD_AUTH)`
 
@@ -42,7 +42,7 @@ The defaults for the other fields should be ok. Be sure to save your changes.
 
 As far as I can tell, these are the minimal IAM permissions to make the aws `cognito-idp` command work for admin and regular users of AppSync (replace the Resource arn with the arn of the user pool[s] you want to control):
 
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -78,13 +78,13 @@ This assumes you have[ set up your](https://docs.aws.amazon.com/cli/latest/userg
 
 * When using the `ADMIN_USER_PASSWORD_AUTH`
 
-```
+```bash
 aws cognito-idp admin-initiate-auth --user-pool-id us-east-1_XXXXXXXXXX --auth-flow ADMIN_USER_PASSWORD_AUTH --client-id XXXXXXXXXXXXX --auth-parameters USERNAME=username1,PASSWORD=XXXXXXXXXXXXX > creds.json
 ```
 
 * When using the `USER_PASSWORD_AUTH`
 
-```
+```bash
 aws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH --client-id XXXXXXXXXXXXX --auth-parameters USERNAME=username2,PASSWORD=XXXXXXXXXXXX > creds.json
 ```
 
@@ -106,7 +106,7 @@ The main thing here is you need to generate a `secret hash` to send along with t
 You can do that by creating a little python program to generate it for you when you need it:
 
 ```python3
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys
 import hmac, hashlib, base64
@@ -134,7 +134,7 @@ You will need:
 
 To use:
 
-```
+```bash
 ~/bin/app-client-secret-hash  <username> <app_client_id> <app_client_secret>
 ```
 Where of  course you replace the arguments with the actual values. 
@@ -142,13 +142,13 @@ Where of  course you replace the arguments with the actual values.
 The result is a `secret-hash` you will use in the following command to get the actual JWT credentials
 
 
-```
+```bash
 aws cognito-idp admin-initiate-auth --user-pool-id us-east-1_XXXXXXXXXX --auth-flow ADMIN_USER_PASSWORD_AUTH --client-id XXXXXXXXXXXXX --auth-parameters USERNAME=username3,PASSWORD='secret password',SECRET_HASH='secret-hash' > creds.json
 ```
 
 You could do the same thing with `USER_PASSWORD_AUTH` if you nee that instead
 
-```
+```bash
 aws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH --client-id XXXXXXXXXXXXX --auth-parameters USERNAME=rob+admin,PASSWORD=XXXXXXXXX,SECRET_HASH='secret-hash' > creds.json
 ```
 
