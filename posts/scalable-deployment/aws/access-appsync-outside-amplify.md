@@ -4,6 +4,7 @@ title: Accessing AppSync APIs that require Cognito Login outside of Amplify
 menu_order: 1
 post_status: publish
 post_excerpt: Access your AppSync GraphQL APIs that require Cognito Logins with arbitrary tools outside of Amplify Apps
+canonical_url: https://www.ibd.com/scalable-deployment/aws/access-appsync-outside-amplify-2/
 
 ---
 
