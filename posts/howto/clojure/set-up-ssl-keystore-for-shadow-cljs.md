@@ -149,6 +149,6 @@ Otherwise you can email it or send the file some other way to a destination devi
 
 * Go to Settings and you’ll see the a new option `Profile Downloaded` Click on that and the go thru the rest of the dialogs agreeing to Install the downloaded profile.
  
-![Profile Downloaded in Settings](/_images/_ssl-settings.jpg)
+![Profile Downloaded in Settings](/_images/ssl-settings.jpg)
 
 * After completing all the install dialogs, this client should be ready to connect to the shadow-cljs using https.
