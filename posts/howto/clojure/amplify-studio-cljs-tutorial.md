@@ -3,6 +3,7 @@ title: Use Amplify Studio Figma Connector with Clojurescript
 menu_order: 1
 post_status: publish
 post_excerpt: How to use Clojurescript with Amplify React UI Components generated from Figma
+cover_image: https://dev-to-uploads.s3.amazonaws.com/uploads/articles/y57z7duxyjkb5rydfmdb.png
 ---
 
 # Amplify Studio / Figma / Clojurescript / Reagent Tutorial
@@ -24,7 +25,7 @@ Implements the AWS Tutorial [Build a Vacation Rental Site with Amplify Studio](h
 
 ### Setup an Amplify Studio Project
 
-All the initial setup of the Amplify Studio Project on AWS and the associated Figma project is already described in the first part of the [Build a Vacation Rental Site with Amplify Studio](https://welearncode.com/studio-vacation-site/) so will not repeat it here.
+All the initial setup of the Amplify Studio Project on AWS and the associated Figma project is already described in the first part of the excellent [Build a Vacation Rental Site with Amplify Studio](https://welearncode.com/studio-vacation-site/) so will not repeat it here.
 
 That first part of the article will have you do all the following in the appropriate Web Consoles and services AWS and Figma). You won't be doing any CLI commands on your local dev computer:
 
@@ -39,6 +40,8 @@ That first part of the article will have you do all the following in the appropr
 
 **Start by following the instructions from the original article, [Build a Vacation Rental Site with Amplify Studio](https://welearncode.com/studio-vacation-site/), up thru to the section: `Pull to Studio`**
 
+Once you have completed that, come back to here and follow the rest of this post at this point.
+
 ## Creating an Amplify Studio App with Clojurescript
 
 This is the actual instructions on how to create your Amplify Studio app in Clojurescript instead of Javascript. It replaces the remainder all the content after `Pull to Studio` from the original article [Build a Vacation Rental Site with Amplify Studio](https://welearncode.com/studio-vacation-site/).
@@ -49,7 +52,7 @@ Instead of using `create-react-app` that would have created a Javascript/React a
 
 In this tutorial, we will make this a git repo and snapshot the state at every stage so that if you make a mistake you can go back to an earlier step.
 
-```
+```bash
 npx create-reagent-app  amplifystudio-cljs-tutorial
 cd amplifystudio-cljs-tutorial
 git init
@@ -60,11 +63,12 @@ npm-install
 
 ### Add webpack and related dependencies
 
-Shadow-cljs can not directly consume JSX files that are the output of the Figma plugin and it needs some help to pull in the AWS UI Components files that Amplify Studio injects into the project.
+Shadow-cljs can not directly consume JSX files that are the output of the Figma plugin and it needs some help to incorporate the AWS UI Components files that Amplify Studio injects into the project.
 
-The use of Babel to prepare JSX files for Shadow-cljs is based on info from [Shadow CLJS User’s Guide - JavaScript Dialects](https://shadow-cljs.github.io/docs/UsersGuide.html#_javascript_dialects). This tutorial moves the babel managment into webpack as described later on.
+The use of Babel to prepare JSX files for Shadow-cljs is based on info from [Shadow CLJS User’s Guide - JavaScript Dialects](https://shadow-cljs.github.io/docs/UsersGuide.html#_javascript_dialects). This tutorial moves the babel management into webpack configuration as described later on.
 
 The following dependencies are needed primarily to install webpack and its dependencies.
+
 `html-webpack-plugin` and `html-beautifier-webpack-plugin` are used to inject the proper JS include for the output of webpack into the index.html.
 
 ```bash
@@ -265,7 +269,8 @@ In `shadow-cljs.edn` make sure that the dependencies are up to date (you can che
 
 ### Shadow-cljs js-options
 
-Add the following lines to shadow-cljs.edn between the `:asset-path` and `:modules` stanzas in the `:app` section
+Add the following lines to shadow-cljs.edn between the `:asset-path` and `:modules` stanzas in the `:app` section as per [Thomas Heller](https://github.com/thheller)'s article
+[How about webpack now?](https://code.thheller.com/blog/shadow-cljs/2020/05/08/how-about-webpack-now.html)
 
 ```clojure
    :js-options {:js-provider    :external
@@ -286,7 +291,7 @@ mv public/index.html public/index.html.tmpl
 
 - Add `defer` to the main script tag
 
-change
+Change:
 
 ```html
 <script src="/js/main.js"></script>
@@ -319,6 +324,8 @@ cp node_modules/@aws-amplify/ui/dist/styles.css public/css/style.css
 
 ## Update the scaffold Clojurescript code to support Amplify
 
+Here's where we actually get to the actually writing of some code to use the Amplify UI Components in an App.
+
 Edit `src/main/amplifystudio_cljs_tutorial/app/core.cljs` with the following changes
 
 ### Add the dependencies for the `require`
@@ -339,6 +346,16 @@ Note that the `amplify pull` will populate `src/amplify/ui-components` and the `
 ### Update the `app` function
 
 This is the actual initial page code that is run by the render function. It is primarily [hiccup](https://github.com/reagent-project/reagent/blob/master/doc/UsingHiccupToDescribeHTML.md) syntax.
+
+> Hiccup describes HTML elements and user-defined components as a nested ClojureScript vector.
+>
+> - The first element is either a keyword or a symbol
+>   - If it is a keyword, the element is an HTML element where (name keyword) is the tag of the HTML element.
+>   - If it is a symbol, reagent will treat the vector as a component, as described in the next section.
+> - If the second element is a map, it represents the attributes to the element. The attribute map may be omitted.
+> - Any additional elements must either be Hiccup vectors representing child nodes or string literals representing child text nodes.
+
+This code:
 
 - Displays an `h1` header
 - Wraps the `RentalCollection` we created in Figma / ui-components with the `AmplifyProvider`
@@ -381,13 +398,19 @@ This function is the first code called in the program. It is where you would put
   (render))
 ```
 
-The Clojurescript:
+In the Clojurescript statement:
 
 ```clojure
 (-> Amplify (.configure aws-exports))
 ```
 
-is the Javascript interop equivilent to:
+`->` is the [thread-first macro](https://clojuredocs.org/clojure.core/-%3E). In this case it means that `Amplify` will be passed in as the second argument of the following form. I.E. its the equivalent to this Clojurescript statement:
+
+```clojure
+(.configure Amplify aws-exports)
+```
+
+In ether case, it is the Javascript interop equivalent to:
 
 ```javascript
 Amplify.configure(config);
@@ -430,9 +453,11 @@ and
 
 > At its core, webpack is a static module bundler for modern JavaScript applications. When webpack processes your application, it internally builds a dependency graph from one or more entry points and then combines every module your project needs into one or more bundles, which are static assets to serve your content from.
 
-We are using it to convert the JSX `ui-component` files from Figma/Amplify Studio into vanilla Javascript via babel. It is also being used to resolve the `src/amplify/models` and `src/amplify/ui-components` directories/files that are pulled from amplify into the repo as npm modules via the `resolve` block.
+We are using it to convert the JSX `ui-component` files from Figma/Amplify Studio into vanilla Javascript via babel.
 
-There will be a webpack configuration file, `webpack.config.js` in the top level of the repo. The following will describe the elements we're going to use in that file.
+Webpack is also being used to bundle the `src/amplify/models` and `src/amplify/ui-components` directories/files that are pulled from amplify into the repo as modules so that their objects can be `imported` into the app. This is configured in the `resolve` block below.
+
+This will be a webpack configuration file, `webpack.config.js` in the top level of the repo. The following will describe the elements we're going to use in that file.
 
 #### Requires
 
@@ -470,7 +495,7 @@ This is the main directives that tell weback what to do.
 
 - `test: /\.m?js/,` - Regex that specifies what file types to apply to the first rule to (ones that end with `.mjs` or `.js`)
   - `fullySpecified: false` - the import / require statements should not end with file suffixes
-  - `alias` - Maps the path to the javascript files to a module name. This allows the code to require the Amplify Studio `models` and `ui-components` as npm modules.
+  - `alias` - Maps the path to the javascript files to a module name. This allows the code to require the Amplify Studio `models` and `ui-components` as importable modules.
 - `test: /\.jsx$/` - Regex that specifies which file types to apply to the second rule (JSX files)
   - `exclude` - Don't apply it to files installed by npm in `/node_modules/`
   - `use` - Apply babel to the JSX files. The `.babelrc` file specified earlier tells babel to transform the JSX files to vanilla javascript
@@ -590,15 +615,13 @@ Add the following line to the `”scripts”` section of `package.json`. It will
 
 #### Update .gitignore
 
-add
+add the following to `.gitignore`
 
 ```git-config
 /target/
 ```
 
-To .gitignore
-
-#### Add all the new files
+#### Add all the new files to the commit
 
 git add -A
 git commit -m "Sync up all the final changes"
