@@ -215,6 +215,7 @@ Keep react
 ```
 
 Enter `src/amplify`for `Source Directory Path`
+_NOTE: we're going to send the amplify JSX/JS files to a directory that is NOT in the clojurescript classpath_
 Enter `public` for `Distribution Directory Path`
 This build puts everything in `public` but other scaffolding or cljs projects may use some other path. It should be the same as the directory above `js` in the `output-dir` parameter in `shadow-cljs.edn`
 
@@ -333,6 +334,8 @@ Edit `src/main/amplifystudio_cljs_tutorial/app/core.cljs` with the following cha
 Add the aws amplify and ui imports to the require so it looks like:
 
 Note that the `amplify pull` will populate `src/amplify/ui-components` and the `webpack` execution described further on, will set things up so the `"ui-components/CardACollection"` require can be fulfilled.
+
+`src/amplify` should _NOT_ be in the clojure[script] class path (usually set in shadow-cljs.edn `:source-paths` map)
 
 ```clojure
 (ns amplifystudio-cljs-tutorial.app.core
