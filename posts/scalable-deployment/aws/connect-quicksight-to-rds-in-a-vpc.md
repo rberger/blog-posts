@@ -1,4 +1,10 @@
-# Connect Quicksight to RDS in a private VPC
+---
+title: Connect Quicksight to RDS in a private VPC
+menu_order: 1
+post_status: publish
+tags: aws, awscommunity, quicksight
+post_excerpt: How to setup a Quicksight VPC Connection to Aurora RDS in a private VPC
+---
 
 There are cases where you want to connect [AWS Quicksight](https://aws.amazon.com/quicksight/) to pull data from an RDS Database in one of your Private VPCs. Its one of those things that you don’t do often and its just funky enough and different enough from most AWS services that I have had to relearn how to do it each time. So here’s what I’ve learnt for posterity.
 
@@ -10,7 +16,7 @@ If you happen to have the weird case where your DB does have a public IP address
 
 Quicksight has the option of creating a connection between you instance of Quicksight and one of your VPCs. It does that by injecting a Network Interface into a subnet you specify from the target VPC.
 
-![Networking of Quicksight and VPC](_images/connect-quicksight/quicksight-vpc-network-interace.png)
+![Networking of Quicksight and VPC](_images/connect-quicksight-quicksight-vpc-network-interace.png)
 
 You only have to supply the
 
@@ -56,13 +62,13 @@ You can reuse a `VPC Connection` for any Datasource in your Quicksight account i
 We'll need the `VPC ID` and the `CIDR Block` associated
 
 You can look at your RDS Configuration to see what VPC it is in.
-![RDS Configuraiton showing VPC](_images/connect-quicksight/rds-configuration-vpc-info.png)
+![RDS Configuraiton showing VPC](_images/connect-quicksight-rds-configuration-vpc-info.png)
 
 In this example:
 
 - `VPC ID` ends in `2aed`
 - `CIDR Block`: 10.0.0.0/16
-  ![VPC Console view of the VPC of interest](_images/connect-quicksight/vpc-configuration.png)
+  ![VPC Console view of the VPC of interest](_images/connect-quicksight-vpc-configuration.png)
 
 ### Pick a Subnet for the Quicksight Network Interface to Use
 
@@ -82,20 +88,20 @@ The criteria are:
 In this example our target DB is an Aurora Postgres cluster. Looking at the RDS Console we can find the subnets its usings
 
 **Click on one of the subnets to view the subnet info**
-![RDS Console with subnet info](_images/connect-quicksight/rds-configuration.png)
+![RDS Console with subnet info](_images/connect-quicksight-rds-configuration.png)
 
 **See what `Availability Zone` its in (us-east-1b in this example)**
-![RDS Subnet info](_images/connect-quicksight/rds-subnet-details-availability-zone.png)
+![RDS Subnet info](_images/connect-quicksight-rds-subnet-details-availability-zone.png)
 
 **Confirm it routes to the VPC CIDR Block (10.0.0.0/16 in this example)**
-![RDS Console showing Availability Zone](_images/connect-quicksight/rds-subnet-details.png)
+![RDS Console showing Availability Zone](_images/connect-quicksight-rds-subnet-details.png)
 
 - Go to the subnet view in the VPC Console.
 - Find an existing subnet that also routes to the same VPC CIDR Block (or overlapping subset with the DB subnet and its on the same `Availability Zone`)
   - You could also create a new subnet for this as long as it meets the same criteria
 - In our example its the subnet that ends with `90dc`
 
-![Existing Subnet suitable for Quicksight](_images/connect-quicksight/quicksight-subnet.png)
+![Existing Subnet suitable for Quicksight](_images/connect-quicksight-quicksight-subnet.png)
 
 ## Security Group
 
@@ -113,10 +119,10 @@ The `Outbound Rules` should limit the destinations to just your target DB. The e
 
 You should also limit the outbound ports to be ones appropriate for your target DB, such as port 5432 for Postgres.
 
-![Outbound Rules wiht security group destination](_images/connect-quicksight/security-group-outbound-rules.png)
+![Outbound Rules wiht security group destination](_images/connect-quicksight-security-group-outbound-rules.png)
 
 We ran into a problem where for historical reasons, there were some existing inbound rules in the Target DB that prevented us from using the Target DB as the destination security group, so we used a CIDR range that covered the Target DB range of addresses. This should be an unusual situation and you can probably ignore it.
-![Outbound Rules wiht security group destination](_images/connect-quicksight/security-group-outbound-rules-cidr.png)
+![Outbound Rules wiht security group destination](_images/connect-quicksight-security-group-outbound-rules-cidr.png)
 
 ## DNS Resolver Endpoints (optional)
 
@@ -137,7 +143,7 @@ The resolver needs to have a security group for itself to allow the DNS requests
 - Create a new Security Group and call it something like `quicksight-route53-resolver` or whatever fits your nameing scheme.
 - Set the `Inbound Rules` to allow for DNS UDP and DNS TCP from all sources on the VPC CIDR Block
 
-![Resolver Security Group Inbound Rules](_images/connect-quicksight/security-group-dns-resolver-inbound.png)
+![Resolver Security Group Inbound Rules](_images/connect-quicksight-security-group-dns-resolver-inbound.png)
 
 ##### Outbound Rules
 
@@ -159,11 +165,11 @@ You will need to go to the Route53 Console and select `Resolver->Inbound endpoin
   - Check the option `Use an IP address that is selected automatically` for both
   - Click `Submit` when done
 
-![Route53 Create Resolver Inbound Endpoint](_images/connect-quicksight/route53-create-inbound-endpoint.png)
+![Route53 Create Resolver Inbound Endpoint](_images/connect-quicksight-route53-create-inbound-endpoint.png)
 
 You will then end up with an `Inbound Endpoint` that will have been assigned two IP addresses. These addresses will be needed to supply to the `VPC Connection` and be used to update the Quicksight Security Group.
 
-![Route53 Quicksight Inbound Resolver](_images/connect-quicksight/route53-quicksight-inbound-resolver.png)
+![Route53 Quicksight Inbound Resolver](_images/connect-quicksight-route53-quicksight-inbound-resolver.png)
 
 In this example the two IP Addresses are
 
@@ -176,7 +182,7 @@ If you are using the DNS Resolver Inbound Endpoints feature, you will also have 
 
 To do this we will add DNS UDP and DNS TCP to the `Output Rules` of the `Amazon-QuickSight-access` Security Group for each of the two IP Addresses from the `Inbound Resolver` we just created. Note that you need to have the CIDR suffix `/32` at the end when entering them into the Security Group editor.
 
-![Quicksight Security Group with DNS Resolver IPs](_images/connect-quicksight/security-group-quicksight-with-dns-resolver-ips.png)
+![Quicksight Security Group with DNS Resolver IPs](_images/connect-quicksight-security-group-quicksight-with-dns-resolver-ips.png)
 
 ## Create the Actual VPC Connection
 
@@ -186,15 +192,15 @@ You will of course need to have proper permissions to access and manage Quicksig
 
 - Enter the Quicksight Console, click on your username on the topr right of the page and select `Manage Quicksight`
 
-![Home page select Manage Quicksigth](_images/connect-quicksight/quicksight-select-manage.png)
+![Home page select Manage Quicksigth](_images/connect-quicksight-quicksight-select-manage.png)
 
 - Then select `Manage VPC Connections` in the left hand Navbar
 
-![Select Manage VPC Connection from Navbar](_images/connect-quicksight/qucicksight-select-manage-vpc-connections.png)
+![Select Manage VPC Connection from Navbar](_images/connect-quicksight-qucicksight-select-manage-vpc-connections.png)
 
 - Click on `Add VPC Connection` to create the new connection
 
-![Add VPC Connection](_images/connect-quicksight/quicksight-add-vpc-connection.png)
+![Add VPC Connection](_images/connect-quicksight-quicksight-add-vpc-connection.png)
 
 Fill in the form with the info we found or created earlier:
 
@@ -210,7 +216,7 @@ Fill in the form with the info we found or created earlier:
 - `DNS Resolver Endpoints`: The IP addresses from the DNS Resolver `Inbound Endpoints`
   - Our example: `10.0.100.120` and `10.0.101.80`
 
-![VPC Connection Form](_images/connect-quicksight/vpc-connection-form.png)
+![VPC Connection Form](_images/connect-quicksight-vpc-connection-form.png)
 
 ## Create a Dataset using the VPC Connection
 
@@ -220,7 +226,7 @@ Now that the `VPC Connection` has been setup, we can use it to create a Dataset 
 - Click on `Datasets` at the bottom of the left Navbar
 - Click on `New dataset` on the top right of the page.
 
-![Getting to the Dataset create page](_images/connect-quicksight/getting-to-new-dataset.png)
+![Getting to the Dataset create page](_images/connect-quicksight-getting-to-new-dataset.png)
 
 - Click on `Aurora` (or other source, but we're not going to show other sources in this article)
 
@@ -229,7 +235,7 @@ Now that the `VPC Connection` has been setup, we can use it to create a Dataset 
 - `Data source name`: Our example is `my-data-source`
 - `Connection type`: Select the VPC connection we created
   - `my-aurora-db`
-    ![Select VPC Connection](_images/connect-quicksight/select-vpc-connection.png)
+    ![Select VPC Connection](_images/connect-quicksight-select-vpc-connection.png)
 - `Database connector`: `PostgreSQL`
 - `Database server`: The `Endpoint` of your Aurora DB
   - This is the fully qualified DNS name of your DB endpoint
@@ -272,7 +278,7 @@ You will need to know the `Network Interface` ID of the interface created for th
 
 Then search for the name you used for the Quicksight connection. Our example was `my-aurora-db` It will be part of the description of the `Network Interface` associated with that connection. In our example it starts with `eni-0b9e`
 
-![Search for Network Interface](_images/connect-quicksight/search-for-network-interface.png)
+![Search for Network Interface](_images/connect-quicksight-search-for-network-interface.png)
 
 #### Find the ID of the Target DB Network Interface
 
@@ -287,7 +293,7 @@ You will need to know any of the `Network Interface` IDs of the Target DB. There
 
 Go to the VPC Console and click on the `Create and analyze path` button on the top right of the page
 
-![Rechability Analyzer](_images/connect-quicksight/reachability-analyzer.png)
+![Rechability Analyzer](_images/connect-quicksight-reachability-analyzer.png)
 
 - Give it a name
 - Select `Network Interfaces` for the `Source type` and `Destination type`
@@ -299,13 +305,13 @@ Go to the VPC Console and click on the `Create and analyze path` button on the t
   - Or whatever port you set for your Target DB if not Postgres
 - Protcol is `TCP`
 
-![Start Create and Analyze](_images/connect-quicksight/create-and-analyze-path.png)
+![Start Create and Analyze](_images/connect-quicksight-create-and-analyze-path.png)
 
 - Click on `Create and analyze path`
 
 If it all works you should see:
 
-![Analyze Success](_images/connect-quicksight/analyze-success.png)
+![Analyze Success](_images/connect-quicksight-analyze-success.png)
 
 If that works, you configured the DNS Endpoint Resolver, but your VPC Connection / Dataset creation still doesn't work, you may want to repeat the `Reachability Analyzer` test for the DNS TCP and UDP ports in addition to the Postgres Port to double check for the DNS passing properly between the resolver and Quicksight.
 
