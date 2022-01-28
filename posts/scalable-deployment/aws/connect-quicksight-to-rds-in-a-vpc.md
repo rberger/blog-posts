@@ -4,6 +4,7 @@ menu_order: 1
 post_status: publish
 tags: aws, awscommunity, quicksight
 post_excerpt: How to setup a Quicksight VPC Connection to Aurora RDS in a private VPC
+canonical_url: https://www.ibd.com/howto/connect-quicksight-to-rds-in-a-vpc/
 ---
 
 There are cases where you want to connect [AWS Quicksight](https://aws.amazon.com/quicksight/) to pull data from an RDS Database in one of your Private VPCs. Its one of those things that you don’t do often and its just funky enough and different enough from most AWS services that I have had to relearn how to do it each time. So here’s what I’ve learnt for posterity.
@@ -119,7 +120,7 @@ The `Outbound Rules` should limit the destinations to just your target DB. The e
 
 You should also limit the outbound ports to be ones appropriate for your target DB, such as port 5432 for Postgres.
 
-![Outbound Rules wiht security group destination](/_images/connect-quicksight-security-group-outbound-rules.png)
+![Outbound Rules with security group destination](/_images/connect-quicksight-security-group-outbound-rules.png)
 
 We ran into a problem where for historical reasons, there were some existing inbound rules in the Target DB that prevented us from using the Target DB as the destination security group, so we used a CIDR range that covered the Target DB range of addresses. This should be an unusual situation and you can probably ignore it.
 ![Outbound Rules wiht security group destination](/_images/connect-quicksight-security-group-outbound-rules-cidr.png)
@@ -192,7 +193,7 @@ You will of course need to have proper permissions to access and manage Quicksig
 
 - Enter the Quicksight Console, click on your username on the topr right of the page and select `Manage Quicksight`
 
-![Home page select Manage Quicksigth](/_images/connect-quicksight-quicksight-select-manage.png)
+![Home page select Manage Quicksight](/_images/connect-quicksight-quicksight-select-manage.png)
 
 - Then select `Manage VPC Connections` in the left hand Navbar
 
